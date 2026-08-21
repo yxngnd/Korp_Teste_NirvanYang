@@ -1,0 +1,44 @@
+<h1>Nova nota fiscal</h1>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div formArrayName="itens">
+    @for (item of itens.controls; track item; let i = $index) {
+      <div [formGroupName]="i" class="linha-item">
+        <mat-form-field appearance="outline">
+          <mat-label>Produto</mat-label>
+          <mat-select formControlName="produtoCodigo">
+            @for (produto of produtosDisponiveis; track produto.codigo) {
+              <mat-option [value]="produto.codigo">
+                {{ produto.codigo }} — {{ produto.descricao }} (saldo: {{ produto.saldo }})
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Quantidade</mat-label>
+          <input matInput type="number" formControlName="quantidade" />
+        </mat-form-field>
+
+        <button
+          mat-icon-button
+          type="button"
+          aria-label="Remover item"
+          [disabled]="itens.length === 1"
+          (click)="removerItem(i)"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    }
+  </div>
+
+  <button mat-stroked-button type="button" (click)="adicionarItem()">Adicionar item</button>
+
+  <div class="acoes">
+    <a mat-button routerLink="/notas">Cancelar</a>
+    <button mat-flat-button color="primary" type="submit" [disabled]="salvando">
+      {{ salvando ? 'Salvando...' : 'Criar nota fiscal' }}
+    </button>
+  </div>
+</form>

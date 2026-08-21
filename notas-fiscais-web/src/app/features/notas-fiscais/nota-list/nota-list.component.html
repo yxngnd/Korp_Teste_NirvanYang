@@ -1,0 +1,50 @@
+<h1>Notas fiscais</h1>
+
+<a mat-flat-button color="primary" routerLink="/notas/novo">Nova nota fiscal</a>
+
+@if (carregando) {
+  <mat-spinner diameter="32"></mat-spinner>
+}
+
+@if (!carregando && notas.length === 0) {
+  <p>Nenhuma nota fiscal cadastrada ainda.</p>
+}
+
+@if (!carregando && notas.length > 0) {
+  <table mat-table [dataSource]="notas" class="tabela">
+    <ng-container matColumnDef="numero">
+      <th mat-header-cell *matHeaderCellDef>Número</th>
+      <td mat-cell *matCellDef="let nota">
+        <a [routerLink]="['/notas', nota.numero]">{{ nota.numero }}</a>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <td mat-cell *matCellDef="let nota">
+        <mat-chip [class.chip-fechada]="nota.status === 'Fechada'">{{ nota.status }}</mat-chip>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="acoes">
+      <th mat-header-cell *matHeaderCellDef>Ações</th>
+      <td mat-cell *matCellDef="let nota">
+        <button
+          mat-stroked-button
+          color="primary"
+          [disabled]="nota.status !== 'Aberta' || imprimindo.has(nota.numero)"
+          (click)="imprimir(nota)"
+        >
+          @if (imprimindo.has(nota.numero)) {
+            <mat-spinner diameter="18"></mat-spinner>
+          } @else {
+            Imprimir
+          }
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+    <tr mat-row *matRowDef="let row; columns: colunas"></tr>
+  </table>
+}

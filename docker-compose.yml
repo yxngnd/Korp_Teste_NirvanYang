@@ -1,0 +1,81 @@
+services:
+  estoque-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: estoque_user
+      POSTGRES_PASSWORD: estoque_pass
+      POSTGRES_DB: estoque_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - estoque-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U estoque_user -d estoque_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  estoque-service:
+    build: ./estoque-service
+    environment:
+      SERVER_PORT: 8081
+      DB_HOST: estoque-db
+      DB_PORT: 5432
+      DB_USER: estoque_user
+      DB_PASSWORD: estoque_pass
+      DB_NAME: estoque_db
+      DB_SSLMODE: disable
+    ports:
+      - "8081:8081"
+    depends_on:
+      estoque-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8081/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  faturamento-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: faturamento_user
+      POSTGRES_PASSWORD: faturamento_pass
+      POSTGRES_DB: faturamento_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - faturamento-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U faturamento_user -d faturamento_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  faturamento-service:
+    build: ./faturamento-service
+    environment:
+      SERVER_PORT: 8082
+      DB_HOST: faturamento-db
+      DB_PORT: 5432
+      DB_USER: faturamento_user
+      DB_PASSWORD: faturamento_pass
+      DB_NAME: faturamento_db
+      DB_SSLMODE: disable
+      ESTOQUE_SERVICE_URL: http://estoque-service:8081
+    ports:
+      - "8082:8082"
+    depends_on:
+      faturamento-db:
+        condition: service_healthy
+      estoque-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8082/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  estoque-db-data:
+  faturamento-db-data:

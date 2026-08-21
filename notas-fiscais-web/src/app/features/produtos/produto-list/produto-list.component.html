@@ -1,0 +1,35 @@
+<h1>Produtos</h1>
+
+<app-produto-form (produtoCriado)="onProdutoCriado()"></app-produto-form>
+
+<h2>Produtos cadastrados</h2>
+
+@if (carregando) {
+  <mat-spinner diameter="32"></mat-spinner>
+}
+
+@if (!carregando && produtos.length === 0) {
+  <p>Nenhum produto cadastrado ainda.</p>
+}
+
+@if (!carregando && produtos.length > 0) {
+  <table mat-table [dataSource]="produtos" class="tabela">
+    <ng-container matColumnDef="codigo">
+      <th mat-header-cell *matHeaderCellDef>Código</th>
+      <td mat-cell *matCellDef="let produto">{{ produto.codigo }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="descricao">
+      <th mat-header-cell *matHeaderCellDef>Descrição</th>
+      <td mat-cell *matCellDef="let produto">{{ produto.descricao }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="saldo">
+      <th mat-header-cell *matHeaderCellDef>Saldo</th>
+      <td mat-cell *matCellDef="let produto">{{ produto.saldo }}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+    <tr mat-row *matRowDef="let row; columns: colunas"></tr>
+  </table>
+}

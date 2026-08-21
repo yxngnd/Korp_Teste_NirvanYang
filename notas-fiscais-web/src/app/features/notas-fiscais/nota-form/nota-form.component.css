@@ -1,0 +1,15 @@
+.linha-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.linha-item mat-form-field {
+  flex: 1;
+}
+
+.acoes {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}

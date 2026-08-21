@@ -1,0 +1,25 @@
+<a mat-button routerLink="/notas">&larr; Voltar</a>
+
+@if (carregando) {
+  <mat-spinner diameter="32"></mat-spinner>
+}
+
+@if (!carregando && nota) {
+  <h1>Nota fiscal {{ nota.numero }}</h1>
+  <p>Status: <strong>{{ nota.status }}</strong></p>
+
+  <table mat-table [dataSource]="nota.itens" class="tabela">
+    <ng-container matColumnDef="produtoCodigo">
+      <th mat-header-cell *matHeaderCellDef>Produto</th>
+      <td mat-cell *matCellDef="let item">{{ item.produtoCodigo }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="quantidade">
+      <th mat-header-cell *matHeaderCellDef>Quantidade</th>
+      <td mat-cell *matCellDef="let item">{{ item.quantidade }}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+    <tr mat-row *matRowDef="let row; columns: colunas"></tr>
+  </table>
+}

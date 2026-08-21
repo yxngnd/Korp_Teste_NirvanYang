@@ -1,0 +1,43 @@
+# docker-compose para testar o estoque-service isoladamente, com seu próprio
+# banco Postgres. Quando o faturamento-service estiver pronto, os dois
+# arquivos serão unificados em um docker-compose.yml na raiz do projeto.
+services:
+  estoque-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: estoque_user
+      POSTGRES_PASSWORD: estoque_pass
+      POSTGRES_DB: estoque_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - estoque-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U estoque_user -d estoque_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  estoque-service:
+    build: .
+    environment:
+      SERVER_PORT: 8081
+      DB_HOST: estoque-db
+      DB_PORT: 5432
+      DB_USER: estoque_user
+      DB_PASSWORD: estoque_pass
+      DB_NAME: estoque_db
+      DB_SSLMODE: disable
+    ports:
+      - "8081:8081"
+    depends_on:
+      estoque-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8081/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  estoque-db-data:
